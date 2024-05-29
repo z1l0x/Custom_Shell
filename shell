@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Save the current prompt
+ORIGINAL_PS1=$PS1
+your_name="enter your name"
+
+# Define colors and styles
+BOLD='\[\e[1m\]'
+RED='\[\e[31m\]'
+YELLOW="\[\e[0;33m\]"
+CYAN="\[\e[0;36m\]"
+MAGENTA="\[\e[0;35m\]"
+GREEN='\[\e[32m\]'
+BLUE='\[\e[34m\]'
+RESET='\[\e[0m\]'
+
+#clear previous  stuff
+clean() {
+	clear
+	figlet -f slant -c $your_name
+	time=$(date)
+	echo "Today is $time"
+	echo -e  "Following \U0001F4C1 are here."
+	tree -d -L 1
+}
+
+#check Root
+is_root() {
+    if [[ $EUID -eq 0 ]]; then 
+	echo "You are $(whoami)!"
+        export PS1="${CYAN}\w${RESET} ${RED}--> ${RESET} "
+    else
+	echo "You are $(whoami)!"
+        export PS1="${CYAN}\w${RESET} ${BLUE}--> ${RESET} "
+    fi
+}
+# Python server:
+function serve {
+	echo -e  "\u2713 Serving files on 9090....."
+	python3 -m http.server 9090
+}
+# Take Me Home
+function home {
+	echo -e "\u2713 You are in Home directory...."
+	cd ~
+}
+
+
+clean
+is_root
+# Run an interactive shell with the custom prompt and setup
+
+bash --rcfile <(cat <<EOF
+PS1='$PS1'
+$(declare -f serve)
+$(declare -f home)
+
+EOF
+)
+# Revert to the original prompt after exiting
+export PS1=$ORIGINAL_PS1
